@@ -26,6 +26,7 @@ public class CollectionCliente {
 			System.out.println("\nNO SE PUEDE GUARDAR EL CLIENTE");
 		}
         
+    	
     }
 
     public static Cliente buscarCliente(long dni) {
