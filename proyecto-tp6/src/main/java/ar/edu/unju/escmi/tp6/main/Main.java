@@ -1,16 +1,19 @@
-
 package ar.edu.unju.escmi.tp6.main;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import ar.edu.unju.escmi.tp6.collections.CollectionCliente;
 import ar.edu.unju.escmi.tp6.collections.CollectionCredito;
+import ar.edu.unju.escmi.tp6.collections.CollectionFactura;
 import ar.edu.unju.escmi.tp6.collections.CollectionProducto;
 import ar.edu.unju.escmi.tp6.collections.CollectionStock;
 import ar.edu.unju.escmi.tp6.collections.CollectionTarjetaCredito;
 import ar.edu.unju.escmi.tp6.dominio.Cliente;
 import ar.edu.unju.escmi.tp6.dominio.Credito;
+import ar.edu.unju.escmi.tp6.dominio.Detalle;
 import ar.edu.unju.escmi.tp6.dominio.Factura;
 import ar.edu.unju.escmi.tp6.dominio.Producto;
 import ar.edu.unju.escmi.tp6.dominio.Stock;
@@ -170,7 +173,7 @@ public class Main {
 
                 encontrado = true;
                 System.out.println("\nCredito del cliente: " + cliente.getNombre());
-                credito.mostarCredito();
+                credito.mostrarCredito();
             }
         }
 
@@ -213,6 +216,12 @@ public class Main {
             return;
         }
 
+        if (tarjeta.getFechaCaducacion() == null
+                || tarjeta.getFechaCaducacion().isBefore(LocalDate.now())) {
+            System.out.println("Error: la tarjeta de credito esta vencida o no tiene fecha de caducidad.");
+            return;
+        }
+
         System.out.print("Ingrese el codigo del producto: ");
         long codigo = Long.parseLong(scanner.nextLine());
 
@@ -248,14 +257,49 @@ public class Main {
 
         double total = producto.getPrecioUnitario() * cantidad;
 
+     Detalle detalle = new Detalle(cantidad, total, producto);
+
+     List<Detalle> detalles = new ArrayList<>();
+     detalles.add(detalle);
+
+     long numeroFactura = System.currentTimeMillis();
+     Factura factura = new Factura(
+             LocalDate.now(),
+             numeroFactura,
+             cliente,
+             detalles
+     );
+
+     double limiteAnterior = tarjeta.getLimiteCompra();
+     int stockAnterior = stock.getCantidad();
+
+     Credito credito = null;
+
+     try {
+         credito = new Credito(tarjeta, factura, new ArrayList<>());
+         CollectionStock.reducirStock(stock, cantidad);
+         CollectionFactura.facturas.add(factura);
+         CollectionCredito.creditos.add(credito);
+
+     } catch (RuntimeException e) {
+         CollectionCredito.creditos.remove(credito);
+         CollectionFactura.facturas.remove(factura);
+         stock.setCantidad(stockAnterior);
+         tarjeta.setLimiteCompra(limiteAnterior);
+         throw e;
+     }
+
         System.out.println("\n====== RESUMEN DE LA COMPRA =====");
         System.out.println("Cliente: " + cliente.getNombre());
         System.out.println("Producto: " + producto.getDescripcion());
         System.out.println("Cantidad: " + cantidad);
         System.out.println("Total: $" + total);
 
-        System.out.println("\nLa compra fue preparada, pero aun no fue registrada.");
-        System.out.println("Falta conectar las validaciones y el registro de Ahora 20.");
+        System.out.println("\nVenta registrada correctamente con Ahora 20.");
+        System.out.println("Numero de factura: " + numeroFactura);
+        System.out.println("Cantidad de cuotas: " + Credito.CANTIDAD_CUOTAS);
+        System.out.println("Importe de cada cuota: $" + (total / Credito.CANTIDAD_CUOTAS));
+        System.out.println("Limite disponible de la tarjeta: $" + tarjeta.getLimiteCompra());
     }
 
 }
