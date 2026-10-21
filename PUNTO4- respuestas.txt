@@ -1,0 +1,15 @@
+4- respuestas
+a)¿Por qué no se dibuja la relación de agregación entre la clase CollectionProducto y Producto
+Porque la lista de productos ya está representada en el atributo productos: Producto [1..*] de CollectionProducto.
+b) ¿Cuántos atributos tiene la clase Factura? ¿Cuáles son los nombres de esos atributos? 
+Tiene cuatro atributos: fecha, nroFactura, cliente y detalles.
+c) ¿Cómo se llama la relación que se establece entre Factura y Detalle? 
+Se llama Composición.Significa que los detalles son parte de la factura y no pueden existir sin ella. Si se elimina la factura, sus detalles también se borran, porque un detalle suelto no tiene sentido por sí solo.
+d) ¿Cómo se llama la relación entre las clases Factura y Cliente?
+Es una Asociación simple. Significa que la factura sabe a qué cliente pertenece, pero son independientes: si anulas la factura, el cliente sigue existiendo en el sistema.
+e) ¿Por qué los atributos de las clases Collections son públicos?
+Porque otras clases necesitan acceder a las listas para agregar, buscar o consultar objetos. Además, los atributos son estáticos porque pertenecen a la clase y no a cada objeto.
+f) Describa las características de todos los métodos de la clase CollectionClientes 
+precargarClientes(): Carga una lista inicial de clientes de prueba para no arrancar con la colección vacía. No recibe parámetros ni devuelve valor (void).   
+agregarCliente(cliente): Recibe un objeto cliente por parámetro y lo guarda en la lista.
+buscarCliente(dni): Recibe un número de DNI, busca la coincidencia y devuelve el objeto Cliente encontrado (o null si no existe)
